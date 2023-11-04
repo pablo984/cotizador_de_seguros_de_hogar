@@ -2,13 +2,18 @@ import React, { useState, useContext } from 'react';
 import Cotizador from './Cotizador.jsx'
 import { AppContext } from './AppContext.jsx';
 
-let inmuebleElegido;
-let factorDelInmueble;
-let ciudadElegida;
+// let inmuebleElegido;
+// let factorDelInmueble;
+// let ciudadElegida;
 
 function Formulario(){
     const [factorPropiedad, setFactorPropiedad] = useState(0);
     const [mostrarCotizador, setMostrarCotizador] = useState(false);
+
+    //ChatGPT:
+    const [inmuebleElegido, setInmuebleElegido] = useState('');
+    const [factorDelInmueble, setFactorDelInmueble] = useState(0);
+    const [ciudadElegida, setCiudadElegida] = useState('');
     
     //Traigo las propiedades desde el contexto creado previamente: 
     const {propiedades, ubicaciones, formulario, setFormulario} = useContext(AppContext);    
@@ -18,17 +23,16 @@ function Formulario(){
         console.log("El ID de la propiedad elegida es: " + event.target.value);
 
         const propiedadElegida = propiedades.find((propiedad) => propiedad.id == event.target.value);
-        console.log("La propiedad elegida es: " + propiedadElegida.tipo); 
+        // console.log("La propiedad elegida es: " + propiedadElegida.tipo); 
 
         const ubicacionElegida = ubicaciones.find((ubicacion) => ubicacion.id == event.target.value);
-        console.log("La ubicación elegida es: " + ubicacionElegida.tipo)
+        // console.log("La ubicación elegida es: " + ubicacionElegida.tipo)
 
-        inmuebleElegido = propiedadElegida.tipo;
-           
-        factorDelInmueble = propiedadElegida.factor;
+        //ChatGPT
+        setInmuebleElegido(propiedadElegida.tipo);
+        setFactorDelInmueble(propiedadElegida.factor);
+        setCiudadElegida(ubicacionElegida.tipo);
 
-        ciudadElegida = ubicacionElegida.tipo;
-        
         setFactorPropiedad({...factorPropiedad, factorDelInmueble});
         
         //Los "..." mantienen la info, y además agrega la propiedad elegida x el usuario:
