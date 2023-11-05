@@ -1,16 +1,10 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React from 'react';
 
-
-function Cotizador({ factorPropiedad, actualizarClase  }){
-
-    const handleClickDiskette = () => {
-        console.log("Se hizo clic en el diskette");
-        // Aquí puedes agregar lógica adicional cuando se hace clic en el diskette
-    };
+function Cotizador({ factorPropiedad, actualizarClase, guardarEnLocalStorage }){
 
     return <>  
         <div className="center separador">            
-            <p className={`importe ${actualizarClase ? '' : 'ocultar'}`}>Precio estimado: $ <span id="valorPoliza">{factorPropiedad}</span><span className="guardar" title="Guardar en historial" onClick={handleClickDiskette}>💾</span></p>
+            <p className={`importe ${actualizarClase ? '' : 'ocultar'}`}>Precio estimado: $ <span id="valorPoliza">{factorPropiedad}</span><span className="guardar" title="Guardar en historial" onClick={guardarEnLocalStorage}>💾</span></p>
         </div>
     </> 
 }

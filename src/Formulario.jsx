@@ -2,45 +2,35 @@ import React, { useState, useContext } from 'react';
 import Cotizador from './Cotizador.jsx'
 import { AppContext } from './AppContext.jsx';
 
-// let inmuebleElegido;
-// let factorDelInmueble;
-// let ciudadElegida;
-
 function Formulario(){
-    const [factorPropiedad, setFactorPropiedad] = useState(0);
     const [mostrarCotizador, setMostrarCotizador] = useState(false);
-
-    //ChatGPT:
-    const [inmuebleElegido, setInmuebleElegido] = useState('');
-    const [factorDelInmueble, setFactorDelInmueble] = useState(0);
-    const [ciudadElegida, setCiudadElegida] = useState('');
     
     //Traigo las propiedades desde el contexto creado previamente: 
     const {propiedades, ubicaciones, formulario, setFormulario} = useContext(AppContext);    
+    
+    const [inmuebleElegido, setInmuebleElegido] = useState('');
+    const [ciudad, setCiudad] = useState('');
+    const [factorDelInmueble, setFactorDelInmueble] = useState(0);
+    const [factorDeLaCiudad, setFactorDeLaCiudad]  = useState(0);
+    const [resultado, setResultado] = useState(0);
+    const [metros, setMetros] = useState(20);
 
-    //Muestra el ID de la propiedad elegida: 
-    const handleChange = (event) => {
-        console.log("El ID de la propiedad elegida es: " + event.target.value);
-
-        const propiedadElegida = propiedades.find((propiedad) => propiedad.id == event.target.value);
-        // console.log("La propiedad elegida es: " + propiedadElegida.tipo); 
-
-        const ubicacionElegida = ubicaciones.find((ubicacion) => ubicacion.id == event.target.value);
-        // console.log("La ubicación elegida es: " + ubicacionElegida.tipo)
-
-        //ChatGPT
-        setInmuebleElegido(propiedadElegida.tipo);
-        setFactorDelInmueble(propiedadElegida.factor);
-        setCiudadElegida(ubicacionElegida.tipo);
-
-        setFactorPropiedad({...factorPropiedad, factorDelInmueble});
+    const handleChange = (event) => {        
+        const propiedadElegida = propiedades.find((propiedad) => propiedad.id == event.target.value);        
         
-        //Los "..." mantienen la info, y además agrega la propiedad elegida x el usuario:
+        setInmuebleElegido(propiedadElegida.tipo);        
+        setFactorDelInmueble(propiedadElegida.factor);       
+
         setFormulario({...formulario, propiedadElegida});
-
-        //UBICACIONES: 
+    }
+    
+    const handleChange2 = (event) => {
+        const ubicacionElegida = ubicaciones.find((ubicacion) => ubicacion.id == event.target.value);
         
+        setCiudad(ubicacionElegida.tipo);
+        setFactorDeLaCiudad(ubicacionElegida.factor);        
 
+        setFormulario({...formulario, ubicacionElegida});
     }
     
     const handleSubmit = (event) => {
@@ -48,7 +38,6 @@ function Formulario(){
     }
 
     const handleClick = () => {
-        // Aquí puedes realizar otras operaciones y luego mostrar el Cotizador
         setMostrarCotizador(true);
     };
 
@@ -56,24 +45,36 @@ function Formulario(){
         const nuevoJSON = {
             fechaCotizacion:new Date().toLocaleString(),
             propiedad:inmuebleElegido,      
-            factor:factorDelInmueble,
-            ciudad:ciudadElegida                 
+            poliza:resultado.toString(),
+            ubicacion:ciudad,
+            metrosCuadrados:metros.toString()                 
         };
         const historialCotizaciones = JSON.parse(localStorage.getItem("historialCotizaciones")) || []
           historialCotizaciones.push(nuevoJSON)
           localStorage.setItem("historialCotizaciones", JSON.stringify(historialCotizaciones))
     }
 
-    // setFactorPropiedad(factorDeLaPropiedad);
-    const calcular = () => {
-        // setFactorPropiedad(factorPropiedad);
-        handleClick();      
-        subirAlLocalStorage();  
+    function realizarCalculo(){
+        const costoM2 = 35.86; 
+        let cotizacion = (factorDelInmueble * factorDeLaCiudad * metros * costoM2);
+        setResultado(cotizacion.toFixed(2));
     }
 
-    const handleInputChange = (event) => {
-        const newValue = (event.target.value);
-        setMetros2(newValue);
+    const cotizar = () => {
+        if(inmuebleElegido == "" || ciudad == ""){
+            alert("Error: debes completar todos los datos en pantalla");
+        }
+        else if(metros < 20 || metros > 500){
+            alert("Los metros deben ser mayores o igual a 20 metros y no deben superar los 500 metros")
+        }
+        else{
+            handleClick();      
+            realizarCalculo();
+        }
+    }
+
+    const handleChange3 = (event) => {
+        setMetros(event.target.value);
     };
 
     return <>
@@ -82,7 +83,7 @@ function Formulario(){
             <form onSubmit={handleSubmit}>
                 <label htmlFor="propiedad">Selecciona el tipo de propiedad</label>
                 <select id="propiedad" onChange={handleChange}>
-                    <option>...</option>
+                    <option>...</option>                    
                     {propiedades.map((propiedad) => (
                         <option key={propiedad.id} value={propiedad.id}>
                             {propiedad.tipo}
@@ -92,7 +93,7 @@ function Formulario(){
                 </select>
 
                 <label htmlFor="ubicacion">Selecciona su ubicación</label>
-                <select id="ubicacion" onChange={handleChange}>
+                <select id="ubicacion" onChange={handleChange2}>
                     <option>...</option>
                     {ubicaciones.map((ubicacion) => (
                         <option key={ubicacion.id} value={ubicacion.id}>
@@ -101,14 +102,16 @@ function Formulario(){
                     ))
                     }                
                 </select>
-                
+
+                <label htmlFor="metros2">Ingresa los Metros cuadrados:</label>
+                <input type="number" id="metros2" value={metros} onChange={handleChange3} min="20" max="500" required></input>
                        
                 <div className="center separador">
-                    <button className="button button-outline" type="submit" onClick={calcular} >Cotizar</button>
+                    <button className="button button-outline" type="submit" onClick={cotizar}>Cotizar</button>
                 </div>                 
             </form>
         </div>
-        {mostrarCotizador && <Cotizador factorPropiedad={factorDelInmueble} actualizarClase={true}/>}
+        {mostrarCotizador && <Cotizador factorPropiedad={resultado} guardarEnLocalStorage={subirAlLocalStorage} actualizarClase={true}/>}        
     </> 
 }
 
